@@ -1,0 +1,8 @@
+{
+    "control": {
+        "user_actions": ["set_flag"]
+    },
+    "flags": {
+        "myflag": {}
+    }
+}

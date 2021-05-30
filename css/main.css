@@ -1,0 +1,14 @@
+.hidden {
+  display: none;
+}
+
+label {
+  margin-bottom: 10px;
+  display: block;
+}
+
+.login {
+  height:100px; 
+  width:30%; 
+  float:right;
+}
