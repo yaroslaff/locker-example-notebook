@@ -1,4 +1,6 @@
-# locker-example-hello
+# locker-example-notebook
+
+Simple example notebook application to show how easy to write secure multi-user web application with locker.
 
 ## Quickstart
 
