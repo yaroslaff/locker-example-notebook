@@ -1,14 +1,15 @@
 locker = new Locker(locker_addr)
 
 window.onload = async () => {
-  locker.hook_login = load_data
-  document.getElementById('authentication').style.display = 'block'
+  locker.hook_after_check_login = load_data
   locker.check_login()
 }
 
-async function load_data(){
-  draw_profile()
-  load_notebook()
+async function load_data(login_status){
+  if(login_status.status){
+    draw_profile()
+    load_notebook()
+  }
 }
 
 async function draw_profile(){
