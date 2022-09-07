@@ -36,6 +36,7 @@ deploy app:
 ~~~
 locker-admin deploy
 ~~~
+This command will upload application-specific files to your app locker.
 
 Now, if you will do `locker-admin info` again, you will see origins has `https://notebook.ll.www-security.net:8000`.
 
