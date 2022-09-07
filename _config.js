@@ -1,2 +1,2 @@
-locker_addr = 'https://notebook-xenon.alpha.locker.www-security.net'
+locker_addr = 'https://locker.locknote.tk'
 
