@@ -66,18 +66,68 @@ Congratulations, you deployed first locker application!
 
 ## Quickstart (Stage 2): Go production! Custom domain, HTTPS and CDN
 
-We will do this in "hard way", stepping to typical problems and resolving it, but you may scroll down to **Quick way** below. It takes just couple of minutes.
+We will use custom domain for hosting our application. Website (currently: localhost) will use 'www' host in this domain, and locker (currently: notebook-u1.rudev.www-security.net) needs to be from same domain (otherwise [Third party cookies](https://cookie-script.com/all-you-need-to-know-about-third-party-cookies.html) will not work in some browsers), so we will use host 'locker' in same domain and it will work on every browser. 
 
-### Domain
 You need your own custom domain for this stage. If you do not have one, get free .tk/.ml/.ga/.cf/.gq domain at [freenom.com](https://freenom.com/) . (It does not like VPNs, you may get "Some of your domains could not be registered because of a technical error. These domains have been cancelled: ..." error message. Login from other IP then). I registered `locknote.tk` domain for this guide. Everywhere below use your domain name instead of `locknote.tk`.
 
-#### Delegate to Cloudflare
 Use 'Add a Site' on cloudflare, and change NSes (on freenom) to cloudflare DNS servers.
 
-### Host it at surge.sh
-Install surge: `npm install --global surge`
+In the end, you should have something like this on cloudflare:
 
-Edit file `CNAME` in locker-example-notebook directory and put there name of your site.
+![settings CNAME to surge on cloudflare](readme/cloudflare-locker-cname.png)
+
+#### Set new locker_addr in _config.js
+
+Put new locker host address (locker.locknote.tk) into `_config.js`:
+~~~
+locker_addr = 'https://notebook-u1.rudev.www-security.net'
+~~~
+
+#### Set new website address in CNAME
+surge expects sitename to be in `CNAME` file, so put it there:
+~~~
+www.locknote.tk
+~~~
+
+#### Configure allowed origin
+
+Our locker will receive requests from www.locknote.tk, so we need to allow it (now it is not listed as valid origin in locker, use `locker-admin info` to confirm this).
+
+Add new origin: `locker-admin set-origins + https://www.locknote.tk`. This command modifies `etc/options.json` file for your app. (You can edit it manually: `locker-admin edit etc/options.json`). Run `locker-admin info` again to see your website now listed in Origins.
+
+#### Configure new locker host
+
+Then set new servername for locker: `locker-admin set-servernames + locker.locknote.tk` (this adds new name to `etc/servernames.json`). 
+
+Verify with `locker-admin info`:
+~~~
+Locker host:notebook-u1.rudev.www-security.net key:VXhq...
+Origins: ['https://notebook.ll.www-security.net:8000', 'https://www.locknote.tk']
+Servernames: ['locker.locknote.tk']
+~~~
+
+or with curl (diag for new hostname must show proper user and app):
+`$ curl https://locker.locknote.tk/diag
+{
+    "checks": [
+        "OK: etc/options.json exists",
+        "OK: etc/oidc_credentials.json exists",
+        "Vendor credentials for google exists"
+    ],
+    "info": {
+        "counter": 0,
+        "sid": "a1ad7554-96c5-4420-aff3-4e7b93234562",
+        "pwd": "/",
+        "user": "u1",
+        "app": "notebook",
+        "authenticated": false,
+        "current_user": "<flask_login.mixins.AnonymousUserMixin object at 0x7f8f3c50b790>"
+    },
+    "errors": []
+}`
+
+### Upload to surge.sh
+Install surge: `npm install --global surge`
 
 Then just run: `surge` in locker-example-notebook directory.
 
@@ -95,59 +145,12 @@ xenon@braconnier:~/repo/locker-example-notebook$ surge
    Success! - Published to www.locknote.tk
 ~~~
 
-Now we set up CNAME record for host 'www' of your domain in cloudflare to na-west1.surge.sh and make sure proxy enabled (this is needed for HTTPS certificate):
+If you will need to upload new copy of site, just use command `surge` again.
 
-![settings CNAME to surge on cloudflare](readme/cloudflare-surge-cname.png)
-
-This repo has simple `x.txt` file for tests. Open https://www.locknote.tk/x.txt and if you see "x" - great! Half of job is done.
-
-If you will visit your site (https://www.locknote.tk/) and... it will not work. But we will fix it (And learn how to troubleshoot future problems).
-
-
-#### Set correct locker_addr in _config.js
-
-First problem, you must use your application locker address in `_config.js`. When you use `locker-admin server` it generates correct content for this file from `$LOCKER_HOST` envirironment file, not even reading file from disk.  We can just steal it from locker-admin, run it again and see https://notebook.ll.www-security.net:8000/_config.js save it as _config.js file. My _config.js is:
-~~~
-locker_addr = 'https://notebook-u1.rudev.www-security.net'
-~~~
-
-After fixing it, upload again (to same domain): `surge`.
-
-#### Origin
-Next problem, you may see error message: 
-`Forbidden
-Cross-Origin request not allowed from this origin "https://www.locknote.tk"`
-
-This happens because https://www.locknote.tk/ is not listed as valid origin in locker. (use `locker-admin info` to confirm this). Add new origin: `locker-admin set-origins + https://www.locknote.tk`. This command modifies `etc/options.json` file for your app. (You can edit it manually: `locker-admin edit etc/options.json`). Run `locker-admin info` again to see your website now listed in Origins.
-
-#### Third-party cookies and locker address from same domain 
-At this stage site may work or may not work, depending on browser and settings. Often website works in Firefox, but not in Chrome/Chromium.
-
-Open browser developer console (F12), Network tab, click "Login via Google", then select request to file "authenticated" and see warnings in "Response" tab. You will have something like "WARNING! origin_domain='locknote.tk' not matches target_domain='www-security.net'". 
-
-When locker server (notebook-u1.rudev.www-security.net) tries to set session cookie, this [Third party cookie](https://cookie-script.com/all-you-need-to-know-about-third-party-cookies.html) and it is rejected on site 'locknote.tk'. To avoid this problem, we will use locker server name from same domain.
-
-First, create CNAME on cloudflare, pointing to your locker host (notebook-u1.rudev.www-security.net):
-
-![settings CNAME to surge on cloudflare](readme/cloudflare-locker-cname.png)
-
-Then set new servername for locker: `locker-admin set-servernames + locker.locknote.tk` (this adds new name to `etc/servernames.json`). Verify with `locker-admin info`:
-~~~
-Locker host:notebook-u1.rudev.www-security.net key:VXhq...
-Origins: ['https://notebook.ll.www-security.net:8000', 'https://www.locknote.tk']
-Servernames: ['locker.locknote.tk']
-~~~
-
-Put new servername to _config.js:
-~~~
-locker_addr = 'https://locker.locknote.tk'
-~~~
-and upload new site again with `surge`.
-
-And now... it works!
+Open your website at https://www.locknote.tk/ and it should work now! Congratulations, you launched your first locker app. Secure, lightweight and hosted for free!
 
 #### Quick way (recap)
-- Create CNAMEs `wwww` to `na-west1.surge.sh` (with proxy) and `locker` to your app locker host (no proxy)
+- Create CNAMEs `www` to `na-west1.surge.sh` (with proxy) and `locker` to your app locker host (no proxy)
 - `locker-admin set-servernames + locker.locknote.tk`
 - `locker-admin set-origins + https://www.locknote.tk`
 - Put website hostname in `CNAME` file
@@ -160,4 +163,9 @@ If something not working, check:
 - You have correct host in `locker_addr` in _config.js (same as `$LOCKER_HOST` in `.env` file and in myapps)
 - All possible website addresses are listed in Origin
 - locker_addr and origin are from same domain.
-- `authenticated` returns no warnings.
+
+#### Troubleshooting
+- `locker-admin log`
+- `locker-admin info`
+- https://locker.locknote.tk/diag
+- Request to `authenticated` page returns no warnings.
