@@ -64,15 +64,17 @@ You see button "Login via Google". Click it and you will see your simple noteboo
 
 Congratulations, you deployed first locker application!
 
+
+
 ## Quickstart (Stage 2): Go production! Custom domain, HTTPS and CDN
 
-We will use custom domain for hosting our application. Website (currently: localhost) will use 'www' host in this domain, and locker (currently: notebook-u1.rudev.www-security.net) needs to be from same domain (otherwise [Third party cookies](https://cookie-script.com/all-you-need-to-know-about-third-party-cookies.html) will not work in some browsers), so we will use host 'locker' in same domain and it will work on every browser. 
+We will use custom domain for hosting our application. Website (currently: localhost) will use 'www' host in this domain, and locker (currently: notebook-u1.rudev.www-security.net) needs to be from same domain (otherwise [Third party cookies](https://cookie-script.com/all-you-need-to-know-about-third-party-cookies.html) will not work in some browsers). Our recommended approach with 'www' and 'locker' in same domain will work in all browsers (released after Michael Jackson death).
 
-You need your own custom domain for this stage. If you do not have one, get free .tk/.ml/.ga/.cf/.gq domain at [freenom.com](https://freenom.com/) . (It does not like VPNs, you may get "Some of your domains could not be registered because of a technical error. These domains have been cancelled: ..." error message. Login from other IP then). I registered `locknote.tk` domain for this guide. Everywhere below use your domain name instead of `locknote.tk`.
+If you do not have domain for this, get free .tk/.ml/.ga/.cf/.gq domain at [freenom.com](https://freenom.com/) . (Freenom does not like VPNs, or use VPN in your country, you may get "Some of your domains could not be registered because of a technical error. These domains have been cancelled: ..." error message. Login from other IP then). I registered `locknote.tk` domain for this guide. Everywhere below use your domain name instead of `locknote.tk`.
 
-Use 'Add a Site' on cloudflare, and change NSes (on freenom) to cloudflare DNS servers.
+Use 'Add a Site' on cloudflare, and change NSes (on freenom) to cloudflare DNS servers. Create 'www' CNAME pointing to 'na-west1.surge.sh' (with proxy enabled) and 'locker' CNAME pointing to your locker host (notebook-u1.rudev.www-security.net in this guide).
 
-In the end, you should have something like this on cloudflare:
+In the end, you should have something like this on cloudflare: 
 
 ![settings CNAME to surge on cloudflare](readme/cloudflare-locker-cname.png)
 
@@ -80,7 +82,7 @@ In the end, you should have something like this on cloudflare:
 
 Put new locker host address (locker.locknote.tk) into `_config.js`:
 ~~~
-locker_addr = 'https://notebook-u1.rudev.www-security.net'
+locker_addr = 'https://locker.locknote.tk'
 ~~~
 
 #### Set new website address in CNAME
