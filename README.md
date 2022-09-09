@@ -109,7 +109,7 @@ Servernames: ['locker.locknote.tk']
 ~~~
 
 or with curl (diag for new hostname must show proper user and app):
-```json
+~~~shell
 $ curl https://locker.locknote.tk/diag
 {
     "checks": [
@@ -127,7 +127,8 @@ $ curl https://locker.locknote.tk/diag
         "current_user": "<flask_login.mixins.AnonymousUserMixin object at 0x7f8f3c50b790>"
     },
     "errors": []
-}```
+}
+~~~
 
 ### Upload to surge.sh
 Install surge: `npm install --global surge`
